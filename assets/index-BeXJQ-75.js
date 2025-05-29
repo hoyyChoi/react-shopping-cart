@@ -11712,7 +11712,7 @@ const useCart = () => {
     getInitializeCartItems();
   }, []);
   return {
-    cartItemsInfo: { orderPrice, deliveryPrice, totalPrice, count: cartItemsCount },
+    cartItemsInfo: { orderPrice, deliveryPrice, totalPrice, cartItemsCount, cartItemsCheckedCount },
     cartItemListProps: { cartItems, handleCartItemChange, handleCheckChange, isAllChecked },
     orderResult: { cartItemsTotalQuantity, cartItemsCheckedCount, totalPrice }
   };
@@ -11779,12 +11779,13 @@ const CartPage = () => {
   const { cartItemsInfo, cartItemListProps, orderResult } = useCart();
   const navigate = useNavigate();
   const handleNavigate = () => navigate("/order-confirm", { state: orderResult });
+  console.log(cartItemsInfo.cartItemsCheckedCount);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container$3, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { variant: "title-1", children: "장바구니" }),
-    cartItemsInfo.count > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Information$2, { children: [
+    cartItemsInfo.cartItemsCount > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Information$2, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Text, { variant: "body-3", children: [
         "현재 ",
-        cartItemsInfo.count,
+        cartItemsInfo.cartItemsCount,
         "종류의 상품이 담겨있습니다."
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(CartItemList, { cartItemListProps }),
@@ -11797,7 +11798,14 @@ const CartPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx(OrderPrice.Wrap, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(OrderPrice.LabelWithPrice, { label: "총 결제 금액", price: cartItemsInfo.totalPrice }) })
       ] })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(NoInformation, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text, { variant: "body-3", children: "장바구니에 담은 상품이 없습니다." }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonWrap$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button$1, { variant: cartItemsInfo.count > 0 ? "primary" : "disabled", onClick: handleNavigate, children: "주문 확인" }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonWrap$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button$1,
+      {
+        variant: cartItemsInfo.cartItemsCount > 0 && cartItemsInfo.cartItemsCheckedCount > 0 ? "primary" : "disabled",
+        onClick: handleNavigate,
+        children: "주문 확인"
+      }
+    ) })
   ] });
 };
 const Container = newStyled.div`
