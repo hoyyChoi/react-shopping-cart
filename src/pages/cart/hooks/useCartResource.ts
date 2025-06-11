@@ -1,17 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CartItem } from "../../../shared/types/cartItem";
 import { useErrorMessage } from "../../../shared/contexts/ErrorContext";
 import cartApi from "../apis/cartApi";
-
-type HandleCartItemChangeType = ({
-  action,
-  id,
-  quantity,
-}: {
-  action: "patch" | "delete";
-  id: number;
-  quantity?: number;
-}) => void;
 
 const useCartResource = () => {
   const { setErrorMessage } = useErrorMessage();
@@ -42,21 +32,19 @@ const useCartResource = () => {
     try {
       await cartApi.delete({ id });
       getCartItems();
+      return id;
     } catch (e) {
       if (e instanceof Error) setErrorMessage(e.message);
     }
   };
 
-  const handleCartItemChange: HandleCartItemChangeType = ({ action, id, quantity }) => {
-    if (action === "patch") patchCartItem({ id, quantity: quantity! });
-    if (action === "delete") deleteCartItem({ id });
+  return {
+    cartItems,
+    cartItemIds,
+    fetchCartItems: getCartItems,
+    patchCartItem,
+    deleteCartItem,
   };
-
-  useEffect(() => {
-    getCartItems();
-  }, []);
-
-  return { cartItems, cartItemIds, handleCartItemChange };
 };
 
 export default useCartResource;

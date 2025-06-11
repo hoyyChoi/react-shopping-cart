@@ -3,6 +3,7 @@ import useCartResource from "./useCartResource";
 import { CartItem } from "../../../shared/types/cartItem";
 import calculateCartAmount from "../utils/calculateCartAmount";
 import calculateCartPrice from "../utils/calculateCartPrice";
+import { useEffect } from "react";
 
 type HandleCartItemChangeType = ({
   action,
@@ -39,17 +40,33 @@ export interface UseCartReturnType {
 }
 
 const useCart = (): UseCartReturnType => {
-  const { cartItems, cartItemIds, handleCartItemChange } = useCartResource();
-  const { checkedIds, isAllChecked, handleCheckChange } = useCartCheck(cartItemIds);
+  const { cartItems, cartItemIds, patchCartItem, deleteCartItem, fetchCartItems } = useCartResource();
+  const { checkedIds, isAllChecked, handleCheckChange, removeCheckedItem } = useCartCheck(cartItemIds);
 
   const { cartItemsCount, cartItemsCheckedCount, cartItemsTotalQuantity } = calculateCartAmount(cartItems, checkedIds);
   const { orderPrice, deliveryPrice, totalPrice } = calculateCartPrice(cartItems, checkedIds);
+
+  const handleCartItemChange: HandleCartItemChangeType = async ({ action, id, quantity }) => {
+    if (action === "patch") {
+      patchCartItem({ id, quantity: quantity! });
+      return;
+    }
+    if (action === "delete") {
+      const deletedId = await deleteCartItem({ id });
+      if (deletedId) removeCheckedItem(deletedId);
+      return;
+    }
+  };
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
 
   return {
     cartItemsInfo: { orderPrice, deliveryPrice, totalPrice, cartItemsCount, cartItemsCheckedCount },
     cartItemListProps: { cartItems, checkedIds, handleCartItemChange, handleCheckChange, isAllChecked },
     orderConfirmPageData: {
-      cartItems,
+      cartItems: cartItems.filter((item) => checkedIds.includes(item.id)),
       orderPrice,
       deliveryPrice,
       totalPrice,
